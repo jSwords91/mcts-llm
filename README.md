@@ -1,4 +1,35 @@
-# mcts-llm
+# MCTS-LLM
+
+Continuing application of MCTS, this time in the context of LLMs.
+
+
+```mermaid
+graph TD
+    A[Start: User Question] --> B[Initialize Root Node with Seed Answer]
+    B --> C[Run MCTS Search Iterations]
+
+    subgraph Iteration i
+        C --> D[Select Node via UCT]
+        D --> E{Is Node Fully Expanded?}
+        E -- Yes --> D2[Select Child with Max UCT]
+        E -- No  --> F[Expand Node: Create Child]
+        F --> G[→ Critique Answer via LLM]
+        G --> H[→ Improve Answer via LLM]
+        H --> I[→ Simulate: Rate Answer via LLM]
+        I --> J[→ Backpropagate Score to Ancestors]
+    end
+
+    J --> K{All Iterations Complete?}
+    K -- No  --> C
+    K -- Yes --> L[Return Best Answer]
+    L --> M[Display in Console]
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style L fill:#bbf,stroke:#000,stroke-width:2px
+    style M fill:#bfb,stroke:#333,stroke-width:2px
+```
+
+<https://arxiv.org/pdf/2406.07394>
 
 <details> <summary><strong>Click to expand full CLI walkthrough</strong></summary>
 
