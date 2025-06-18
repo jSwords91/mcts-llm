@@ -4,6 +4,8 @@
 
 This script wraps an LLM with a basic search algorithm designed to iteratively improve an initial answer to a question. At each step, the LLM critiques its previous response and attempts to improve it, with the MCTS algorithm driving exploration and backpropagation of quality signals. The goal is to converge on a better answer than the vanilla model output.
 
+> See my repo implementing an MCTS in pure C for Connect-4 [here](https://github.com/jSwords91/mcts-c).
+
 ## Overview
 
 This implementation demonstrates:
@@ -31,44 +33,44 @@ The process is as follows:
 
 ## Example Usage
 
+I'm using ```lite-llm``` so you can easily change the LLM you use. Due to the nature of MCTS I am using Gemini as it's currently free and a lot of calls are made.
+
+You can run the script in one of three modes:
+
+If no arguments are provided, a predefined question will be used:
+
 ```bash
 python mcts_llm.py
 ```
 
+Provide your own question via the `--question` flag:
+
+```bash
+python mcts_llm.py --question "Why is the sky blue?"
+```
+
+Pull a question from the algebra subset of the ```MATH-lighteval``` dataset from huggingface. You may specify a row number and an optional difficulty level:
+
+```bash
+python mcts_llm.py --math 10 --level 2
+```
+
+If no row is given, it defaults to row 0.
+
 ## Paper
+
+Not wholly faithful, but in line.
 
 <https://arxiv.org/pdf/2406.07394>
 
-## Visual
-
-```mermaid
-graph TD
-    A[Start: User Question] --> B[Initialize Root Node with Seed Answer]
-    B --> C[Run MCTS Search Iterations]
-
-    subgraph Iteration i
-        C --> D[Select Node via UCT]
-        D --> E{Is Node Fully Expanded?}
-        E -- Yes --> D2[Select Child with Max UCT]
-        E -- No  --> F[Expand Node: Create Child]
-        F --> G[→ Critique Answer via LLM]
-        G --> H[→ Improve Answer via LLM]
-        H --> I[→ Simulate: Rate Answer via LLM]
-        I --> J[→ Backpropagate Score to Ancestors]
-    end
-
-    J --> K{All Iterations Complete?}
-    K -- No  --> C
-    K -- Yes --> L[Return Best Answer]
-    L --> M[Display in Console]
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style L fill:#bbf,stroke:#000,stroke-width:2px
-    style M fill:#bfb,stroke:#333,stroke-width:2px
-```
-
 
 <details> <summary><strong>Click to expand full CLI output</strong></summary>
+
+The question stater is ```A man and a goat are on one side of a river. They have a boat. How can they go across?```, which is notoriously difficult for LLMs. 
+
+The output shows the vanilla call gets it wrong, but the MCTS-LLM gets it correct. 
+
+Obviously a more robust eval harness would be preferable here. (TO DO)
 
 ```text
 ────────────────────────────────────── STARTING MCTS-LLM ───────────────────────────────────────
@@ -173,3 +175,33 @@ MCTS Score Prompt →
 ```
 
 </details>
+
+
+## Visual
+
+```mermaid
+graph TD
+    A[Start: User Question] --> B[Initialize Root Node with Seed Answer]
+    B --> C[Run MCTS Search Iterations]
+
+    subgraph Iteration i
+        C --> D[Select Node via UCT]
+        D --> E{Is Node Fully Expanded?}
+        E -- Yes --> D2[Select Child with Max UCT]
+        E -- No  --> F[Expand Node: Create Child]
+        F --> G[→ Critique Answer via LLM]
+        G --> H[→ Improve Answer via LLM]
+        H --> I[→ Simulate: Rate Answer via LLM]
+        I --> J[→ Backpropagate Score to Ancestors]
+    end
+
+    J --> K{All Iterations Complete?}
+    K -- No  --> C
+    K -- Yes --> L[Return Best Answer]
+    L --> M[Display in Console]
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style L fill:#bbf,stroke:#000,stroke-width:2px
+    style M fill:#bfb,stroke:#333,stroke-width:2px
+```
+

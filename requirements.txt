@@ -1,0 +1,10 @@
+litellm>=1.30.7
+click>=8.1.7
+rich>=13.7.0
+python-dotenv>=1.0.1
+pydantic>=2.6.3 
+mcp>=1.0.0
+mcp[cli]
+datasets
+pandas
+rich
