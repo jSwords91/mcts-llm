@@ -68,6 +68,8 @@ Not wholly faithful, but in line.
 
 The question stater is ```A man and a goat are on one side of a river. They have a boat. How can they go across?```, which is notoriously difficult for LLMs. 
 
+> Interesting difficult questions for LLMs can be found [here](https://matchingpennies.com/hard_questions_for_llms/).
+
 The output shows the vanilla call gets it wrong, but the MCTS-LLM gets it correct. 
 
 Obviously a more robust eval harness would be preferable here. (TO DO)
