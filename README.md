@@ -1,7 +1,7 @@
 # mcts-llm
 
 <details> <summary><strong>Click to expand full CLI walkthrough</strong></summary>
-python mcts-llm.py
+```text
 ────────────────────────────────────── STARTING MCTS-LLM ───────────────────────────────────────
 ─────────────────────────────────────────── QUESTION ───────────────────────────────────────────
 A man and a goat are on one side of a river. They have a boat. How can they go across?
@@ -101,5 +101,5 @@ Could be valid in trivial cases, but misleading in context.
 
 MCTS Score Prompt →  
 **Rating: 100**
-
+```
 </details>
