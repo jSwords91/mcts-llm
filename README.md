@@ -1,6 +1,7 @@
 # mcts-llm
 
 <details> <summary><strong>Click to expand full CLI walkthrough</strong></summary>
+
 ```text
 ────────────────────────────────────── STARTING MCTS-LLM ───────────────────────────────────────
 ─────────────────────────────────────────── QUESTION ───────────────────────────────────────────
@@ -102,4 +103,5 @@ Could be valid in trivial cases, but misleading in context.
 MCTS Score Prompt →  
 **Rating: 100**
 ```
+
 </details>
