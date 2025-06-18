@@ -59,6 +59,8 @@ If no row is given, it defaults to row 0.
 
 There is also support for a rubric to aid the scoring process. To leverage a rubric, define one in a text file, e.g. ```rubric.txt``` and pass it like this:
 
+### Rubric support
+
 ```bash
 python mcts-llm.py --question "Should companies be required to disclose when users are interacting with an AI system instead of a human?" --rubric-file rubric.txt
 ```
@@ -75,6 +77,19 @@ Rubrics are most valuable when:
 - Trade-offs, ambiguity, or judgment are involved
 
 Anthropic has lots of good posts on this.
+
+Broadly though, it can improve the signal quality of the reward function
+
+**Without a rubric:**
+- The LLM is free to apply internal heuristics
+- Ratings can vary based on wording, temperature, model updates, or prompt length
+
+**With a rubric:**
+- The LLM is explicitly instructed *what* to value
+- Scoring becomes more stable, targeted, and meaningful
+- The reward signal reflects *your* definition of "better", not the LLM’s
+
+It means MCTS optimises toward consistent objectives, not ambiguous internal preferences
 
 ## Paper
 
