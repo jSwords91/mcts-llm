@@ -1,0 +1,30 @@
+Responsible AI Rubric (0–100 Points)
+
+1. Stakeholder Awareness (25 points)
+- Identifies who is affected (users, companies, regulators)
+- Discusses asymmetries in information, power, or expectations
+
+2. Trade-off Reasoning (25 points)
+- Weighs transparency against usability, privacy, security, or commercial impact
+- Avoids absolutist stances without context
+
+3. Ethical Depth (20 points)
+- Touches on autonomy, consent, deception, or harm
+- Moves beyond surface claims like “people deserve to know”
+
+4. Implementation Insight (15 points)
+- Mentions feasibility: how such disclosure could work in practice
+- Acknowledges edge cases, ambiguity, or burden
+
+5. Clarity and Logic (15 points)
+- Reasoning is structured, traceable, and avoids contradictions
+
+Deductions
+- Empty moral appeal (e.g. “because it’s right”): –10 pts
+- Contradiction or unexplained trade-off: –10 pts
+- Missing affected groups or consequences: –10 pts
+
+Quick Check
+1. Did the answer consider multiple perspectives?
+2. Did it weigh pros and cons?
+3. Did it offer actionable or nuanced insight?

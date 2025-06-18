@@ -40,22 +40,41 @@ You can run the script in one of three modes:
 If no arguments are provided, a predefined question will be used:
 
 ```bash
-python mcts_llm.py
+python mcts-llm.py
 ```
 
 Provide your own question via the `--question` flag:
 
 ```bash
-python mcts_llm.py --question "Why is the sky blue?"
+python mcts-llm.py --question "Why is the sky blue?"
 ```
 
 Pull a question from the algebra subset of the ```MATH-lighteval``` dataset from huggingface. You may specify a row number and an optional difficulty level:
 
 ```bash
-python mcts_llm.py --math 10 --level 2
+python mcts-llm.py --math 10 --level 2
 ```
 
 If no row is given, it defaults to row 0.
+
+There is also support for a rubric to aid the scoring process. To leverage a rubric, define one in a text file, e.g. ```rubric.txt``` and pass it like this:
+
+```bash
+python mcts-llm.py --question "Should companies be required to disclose when users are interacting with an AI system instead of a human?" --rubric-file rubric.txt
+```
+If this arg is omitted, the LLM simply scores off it's own accord.
+
+I included a responsible AI example. Rubrics can be helpful in many ways and domains, but some rules of thumb:
+
+Rubrics are most valuable when:
+
+- There isn’t a single correct answer
+
+- Reasoning quality matters more than outcome
+
+- Trade-offs, ambiguity, or judgment are involved
+
+Anthropic has lots of good posts on this.
 
 ## Paper
 
