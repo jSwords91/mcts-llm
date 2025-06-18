@@ -1,7 +1,45 @@
 # MCTS-LLM
 
-Continuing application of MCTS, this time in the context of LLMs.
+**An example combining Monte Carlo Tree Search (MCTS) and LLMs for self-improvement through critique and refinement.**
 
+This script wraps an LLM with a basic search algorithm designed to iteratively improve an initial answer to a question. At each step, the LLM critiques its previous response and attempts to improve it, with the MCTS algorithm driving exploration and backpropagation of quality signals. The goal is to converge on a better answer than the vanilla model output.
+
+## Overview
+
+This implementation demonstrates:
+
+- Use of **seed answers** to initialise a search tree
+- An LLM used in three modes:
+  - **Critique**: highlight flaws in a draft
+  - **Improve**: rewrite the draft using the critique
+  - **Evaluate**: score the final answer numerically
+- MCTS with UCT for decision-making over answer revisions
+- Logging and structure suitable for extension or adaptation
+
+## Method
+
+The process is as follows:
+
+1. **Seed**: Start with a basic or uncertain answer (`"I'm not sure"` etc.)
+2. **Iterate**: For a fixed number of iterations:
+   - Select a promising node based on UCT
+   - Critique the current answer
+   - Generate an improved answer
+   - Evaluate the result with a rating prompt
+   - Backpropagate the score to update the tree
+3. **Select**: Return the highest-value child after search
+
+## Example Usage
+
+```bash
+python mcts_llm.py
+```
+
+## Paper
+
+<https://arxiv.org/pdf/2406.07394>
+
+## Visual
 
 ```mermaid
 graph TD
@@ -29,9 +67,8 @@ graph TD
     style M fill:#bfb,stroke:#333,stroke-width:2px
 ```
 
-<https://arxiv.org/pdf/2406.07394>
 
-<details> <summary><strong>Click to expand full CLI walkthrough</strong></summary>
+<details> <summary><strong>Click to expand full CLI output</strong></summary>
 
 ```text
 ────────────────────────────────────── STARTING MCTS-LLM ───────────────────────────────────────
