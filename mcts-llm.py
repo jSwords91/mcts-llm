@@ -21,11 +21,43 @@ SEED_ANSWERS = ["I'm not sure", "I can't say", "I don't know the answer"]
 console = Console()
 
 class LLMClient:
-    def __init__(self, model: str):
+    def __init__(self, model: str, rubric: str | None = None):
         self.model = model
+        self.system_message = self._build_system_message(rubric)
+
+    def _build_system_message(self, rubric: str | None) -> dict:
+        base = "You are an expert assistant focused on providing high-quality answers."
+        if rubric:
+            base += (
+                f"\n\nIMPORTANT: All your responses should be evaluated against these criteria:\n{rubric}"
+                "\n\nKeep these standards in mind for all tasks including critiques and improvements."
+            )
+            return {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": base,
+                        "cache_control": {
+                            "type": "ephemeral" # enables short-lived caching in Gemini
+                        },
+                    }
+                ],
+            }
+        else:
+            return {
+                "role": "system",
+                "content": [{"type": "text", "text": base}],
+            }
 
     def query(self, prompt: str) -> str:
-        messages = [{"role": "user", "content": prompt}]
+        messages = [
+            self.system_message,
+            {
+                "role": "user",
+                "content": [{"type": "text", "text": prompt}],
+            },
+        ]
         try:
             response = completion(model=self.model, messages=messages)
             return response["choices"][0]["message"]["content"].strip()
@@ -49,9 +81,9 @@ class LLMClient:
         console.print("[cyan]Improved Answer:[/cyan]", improved)
         return improved
 
-    def score(self, question: str, answer: str, rubric: str | None = None) -> float:
+    def score(self, question: str, answer: str) -> float:
         console.rule("[magenta]SCORE")
-        prompt = self.get_rating_prompt(question, answer, rubric)
+        prompt = self.get_rating_prompt(question, answer)
         result = self.query(prompt)
         console.print("[magenta]Rating Response:[/magenta]", result)
         match = re.search(r"Rating:\s*(\d+)", result)
@@ -61,20 +93,15 @@ class LLMClient:
 
     @staticmethod
     def get_critique_prompt(q: str, a: str) -> str:
-        return f"""Question: {q}\nDraft Answer: {a}\nPlease critique the draft and explain what is wrong or could be improved. You must maintain high standards."""
+        return f"Question: {q}\nDraft Answer: {a}\nPlease critique this answer against the established criteria. What could be improved? Maintain high standards."
 
     @staticmethod
     def get_improvement_prompt(q: str, a: str, critique: str) -> str:
-        return f"""Question: {q}\nDraft Answer: {a}\nCritique: {critique}\nPlease rewrite the answer to improve it."""
+        return f"Question: {q}\nDraft Answer: {a}\nCritique: {critique}\nRewrite the answer to address these issues while meeting the quality standards."
 
     @staticmethod
-    def get_rating_prompt(q: str, a: str, rubric: str | None = None) -> str:
-        base = f"Question: {q}\nAnswer: {a}"
-        if rubric:
-            base += f"\nRubric:\n{rubric}\nEvaluate the answer based ONLY on this rubric."
-        base += "\nReturn a rating from 0 to 100.\nFormat: Rating: <number>"
-        return base
-
+    def get_rating_prompt(q: str, a: str) -> str:
+        return f"Question: {q}\nAnswer: {a}\nRate this answer against the established criteria from 0 to 100.\nFormat: Rating: <number>"
 
 class Node:
     def __init__(self, question: str, answer: str, parent=None):
@@ -93,11 +120,10 @@ class Node:
 
 
 class MCTS:
-    def __init__(self, question: str, seed_answers: list[str], llm: LLMClient, rubric: str | None = None):
+    def __init__(self, question: str, seed_answers: list[str], llm: LLMClient):
         self.question = question
         self.root = Node(question, random.choice(seed_answers))
         self.llm = llm
-        self.rubric = rubric
 
     def search(self) -> str:
         for i in range(ITERATIONS):
@@ -124,7 +150,7 @@ class MCTS:
         return child
 
     def simulate(self, node: Node) -> float:
-        return self.llm.score(node.question, node.answer, self.rubric)
+        return self.llm.score(node.question, node.answer)
 
     def backpropagate(self, node: Node, reward: float):
         while node:
@@ -144,7 +170,7 @@ def extract_boxed_answer(text: str) -> str | None:
     matches = re.findall(r'\\boxed{((?:[^{}]|\{[^{}]*\})*)}', text)
     return matches[-1] if matches else None
 
-def get_math_qa(row: int = 0, level: int | None = None):
+def get_math_qa(row: int = 0, level: int | None = None) -> tuple[str, str, str | None]:
     ds = load_dataset("DigitalLearningGmbH/MATH-lighteval", "algebra", split='test[:100]')
     df = pd.DataFrame(ds)
     if level:
@@ -172,7 +198,7 @@ if __name__ == "__main__":
     if args.math is not None:
         question, full_answer, short_answer = get_math_qa(row=args.math, level=args.level)
     elif args.question:
-        question = args.question
+        question, short_answer = args.question, None
         short_answer = None
     else:
         question = "A man and a goat are on one side of a river. They have a boat. How can they go across?"
@@ -191,23 +217,22 @@ if __name__ == "__main__":
     console.rule("[bold green]QUESTION")
     console.print(question)
 
-    llm = LLMClient(MODEL)
+    llm = LLMClient(MODEL, rubric)
 
     console.rule("[bold red]VANILLA LLM RESPONSE")
     baseline = llm.query(question)
     console.print(baseline)
 
-    mcts = MCTS(question, seed_answers=SEED_ANSWERS, llm=llm, rubric=rubric)
+    mcts = MCTS(question, seed_answers=SEED_ANSWERS, llm=llm)
     best = mcts.search()
 
     console.rule("[bold blue]MCTS IMPROVED ANSWER")
     console.print(best)
-
     if short_answer:
         console.rule("[bold magenta]GROUND TRUTH (Boxed Answer)")
         console.print(short_answer)
 
     console.rule("[bold yellow]EVALUATION SCORES")
     for label, answer in [("Vanilla", baseline), ("MCTS", best)]:
-        score = llm.score(question, answer, rubric=rubric)
+        score = llm.score(question, answer)
         console.print(f"{label} Score → {score * 100:.1f}/100")
